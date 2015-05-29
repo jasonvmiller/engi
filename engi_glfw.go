@@ -17,7 +17,7 @@ import (
 	"runtime"
 
 	"azul3d.org/native/glfw.v4"
-	"github.com/ajhager/webgl"
+	"github.com/jasonvmiller/webgl"
 )
 
 var window *glfw.Window

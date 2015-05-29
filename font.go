@@ -12,6 +12,9 @@ type glyph struct {
 }
 
 type Font struct {
+	Scale    *Point
+	cellHeight int
+	cellWidth int
 	glyphs map[rune]*glyph
 }
 
@@ -28,7 +31,7 @@ func NewGridFont(texture *Texture, cellWidth, cellHeight int) *Font {
 		}
 	}
 
-	return &Font{glyphs}
+	return &Font{glyphs: glyphs, cellHeight: cellHeight, cellWidth: cellWidth}
 }
 
 func (f *Font) Remap(mapping string) {
@@ -44,17 +47,37 @@ func (f *Font) Remap(mapping string) {
 }
 
 func (f *Font) Put(batch *Batch, r rune, x, y float32, color uint32) {
+	scaleX := float32(1)
+	scaleY := float32(1)
+	if f.Scale != nil {
+		scaleX = f.Scale.X
+		scaleY = f.Scale.Y
+	}
 	if g, ok := f.glyphs[r]; ok {
-		batch.Draw(g.region, x+g.xoffset, y+g.yoffset, 0, 0, 1, 1, 0, color, 1)
+		batch.Draw(g.region, x+g.xoffset, y+g.yoffset, 0, 0, scaleX, scaleY, 0, color, 1)
 	}
 }
 
 func (f *Font) Print(batch *Batch, text string, x, y float32, color uint32) {
 	xx := x
+	scaleX := float32(1)
+	scaleY := float32(1)
+	if f.Scale != nil {
+		scaleX = f.Scale.X
+		scaleY = f.Scale.Y
+	}
 	for _, r := range text {
 		if g, ok := f.glyphs[r]; ok {
-			batch.Draw(g.region, xx+g.xoffset, y+g.yoffset, 0, 0, 1, 1, 0, color, 1)
-			xx += g.xadvance
+			batch.Draw(g.region, xx+g.xoffset, y+g.yoffset, 0, 0, scaleX, scaleY, 0, color, 1)
+			xx += g.xadvance * scaleX
 		}
 	}
+}
+
+func (f *Font) CellHeight() ( int ) {
+	return int(float32(f.cellHeight) * f.Scale.Y)
+}
+
+func (f *Font) CellWidth() ( int ) {
+	return int(float32(f.cellWidth) * f.Scale.X)
 }

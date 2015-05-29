@@ -7,7 +7,6 @@ package engi
 import (
 	"log"
 	"math"
-
 	"github.com/ajhager/webgl"
 )
 
